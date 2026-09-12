@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Приглашение на свидание</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&family=Pacifico&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-1: #7d0045;
+      --bg-2: #b50063;
+      --bg-3: #e13a87;
+      --bg-4: #ff4d94;
+      --text-main: #fff2fa;
+      --text-soft: #ffd9ec;
+      --panel: rgba(255, 230, 244, 0.16);
+      --panel-strong: rgba(255, 243, 250, 0.9);
+      --accent-1: #ff84c2;
+      --accent-2: #ff4b9f;
+      --accent-3: #ffd2ea;
+      --shadow: rgba(53, 0, 26, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Comfortaa", "Segoe UI", Tahoma, sans-serif;
+      background: radial-gradient(circle at 18% 20%, #ff5eaa 0%, transparent 35%),
+                  radial-gradient(circle at 82% 14%, #d01975 0%, transparent 28%),
+                  linear-gradient(160deg, var(--bg-1) 0%, var(--bg-2) 40%, var(--bg-3) 72%, var(--bg-4) 100%);
+      color: var(--text-main);
+      overflow-x: hidden;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hearts-bg {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .falling-heart {
+      position: absolute;
+      top: -12vh;
+      opacity: 0.72;
+      user-select: none;
+      will-change: transform, opacity;
+      animation-name: fallFloat;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+      text-shadow: 0 0 8px rgba(255, 173, 214, 0.45);
+    }
+
+    @keyframes fallFloat {
+      from {
+        transform: translate3d(0, -12vh, 0) rotate(var(--rot-start));
+        opacity: 0;
+      }
+      10% {
+        opacity: var(--heart-opacity);
+      }
+      to {
+        transform: translate3d(var(--drift), 120vh, 0) rotate(var(--rot-end));
+        opacity: 0;
+      }
+    }
+
+    .hero {
+      width: min(920px, 100%);
+      text-align: center;
+      animation: showUp 0.6s ease;
+    }
+
+    .hello {
+      font-size: clamp(1.3rem, 4.1vw, 2.2rem);
+      line-height: 1.4;
+      margin: 0 0 22px;
+      color: var(--text-main);
+      text-shadow: 0 3px 12px rgba(34, 0, 17, 0.45);
+    }
+
+    .question {
+      font-size: clamp(1.55rem, 5vw, 3rem);
+      margin: 0 0 30px;
+      font-weight: 700;
+      color: #fff6fb;
+      text-shadow: 0 4px 14px rgba(40, 0, 19, 0.5);
+    }
+
+    .buttons-zone {
+      width: min(520px, 100%);
+      margin: 0 auto;
+      min-height: 170px;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+      padding: 12px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 14px 30px;
+      font-size: clamp(1rem, 2.8vw, 1.25rem);
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.25s ease, background 0.25s ease;
+      touch-action: manipulation;
+      min-height: 52px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-yes {
+      background: linear-gradient(135deg, #fff1f9, #ffc2e1);
+      color: #9e0f58;
+      box-shadow: 0 12px 30px rgba(27, 0, 13, 0.38);
+      animation: pulseGlow 1.7s ease-in-out infinite;
+      transform-origin: center;
+    }
+
+    .btn-yes:hover {
+      box-shadow: 0 14px 35px rgba(30, 0, 15, 0.48), 0 0 0 2px rgba(255, 240, 249, 0.4) inset;
+    }
+
+    .btn-no {
+      position: absolute;
+      right: 28px;
+      top: 92px;
+      background: rgba(255, 241, 249, 0.95);
+      color: #8e1450;
+      box-shadow: 0 10px 24px rgba(20, 0, 9, 0.3);
+      max-width: 220px;
+      z-index: 12;
+    }
+
+    .flow-wrap {
+      width: min(680px, 100%);
+      background: var(--panel);
+      border-radius: 28px;
+      padding: 18px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 16px 50px var(--shadow);
+      border: 1px solid rgba(255, 230, 245, 0.28);
+      display: none;
+    }
+
+    .flow-wrap.visible {
+      display: block;
+      animation: showUp 0.45s ease;
+    }
+
+    .progress {
+      text-align: center;
+      font-size: 0.92rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+      color: var(--text-soft);
+      text-shadow: 0 2px 8px rgba(35, 0, 17, 0.45);
+    }
+
+    .step-view {
+      background: rgba(255, 245, 251, 0.9);
+      border-radius: 22px;
+      padding: 18px;
+      min-height: 320px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      opacity: 1;
+      transform: translateX(0);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .step-view.is-switching {
+      opacity: 0;
+      transform: translateX(18px);
+    }
+
+    .step-title {
+      text-align: center;
+      font-size: clamp(1.25rem, 4.6vw, 1.95rem);
+      line-height: 1.35;
+      margin: 8px 0 18px;
+      color: #8e134e;
+    }
+
+    .options {
+      display: grid;
+      gap: 12px;
+    }
+
+    .option-btn {
+      border: none;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 18px;
+      padding: 16px 14px;
+      font-size: 1.03rem;
+      font-weight: 600;
+      text-align: left;
+      color: #7b1345;
+      box-shadow: 0 8px 24px rgba(72, 2, 37, 0.2);
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+      min-height: 60px;
+    }
+
+    .option-btn:hover,
+    .option-btn:focus-visible {
+      transform: translateY(-2px);
+      background: #fff0f7;
+      box-shadow: 0 12px 26px rgba(87, 4, 43, 0.24);
+      outline: none;
+    }
+
+    .step-controls {
+      margin-top: 16px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .back-btn,
+    .confirm-btn,
+    .voice-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: 700;
+      min-height: 50px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      font-family: inherit;
+    }
+
+    .back-btn {
+      background: #ffe6f3;
+      color: #821648;
+    }
+
+    .confirm-btn,
+    .voice-btn {
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      color: #fff;
+      box-shadow: 0 10px 22px rgba(49, 0, 24, 0.42);
+    }
+
+    .back-btn:hover,
+    .confirm-btn:hover,
+    .voice-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .date-time-wrap {
+      display: grid;
+      gap: 14px;
+      width: min(380px, 100%);
+      margin: 0 auto;
+    }
+
+    .date-time-wrap label {
+      font-weight: 700;
+      font-size: 0.96rem;
+      margin-bottom: 6px;
+      display: block;
+      color: #821648;
+    }
+
+    .date-time-wrap input {
+      width: 100%;
+      border: 2px solid #ffacd3;
+      background: #fff;
+      border-radius: 14px;
+      min-height: 52px;
+      padding: 10px 12px;
+      font-size: 1rem;
+      color: #6b123b;
+      font-family: inherit;
+    }
+
+    .date-time-wrap input:focus {
+      outline: none;
+      border-color: #ff5ea8;
+      box-shadow: 0 0 0 4px rgba(255, 94, 168, 0.2);
+    }
+
+    .final {
+      text-align: center;
+      width: min(980px, 100%);
+      margin: 0 auto;
+      animation: showUp 0.8s ease;
+      display: none;
+    }
+
+    .final.visible {
+      display: block;
+    }
+
+    .final-title {
+      font-size: clamp(1.6rem, 5.6vw, 3rem);
+      line-height: 1.35;
+      color: #fff4fb;
+      text-shadow: 0 4px 14px rgba(35, 0, 17, 0.55);
+      margin: 0 0 12px;
+    }
+
+    .summary {
+      margin: 0 auto 22px;
+      width: min(680px, 100%);
+      background: rgba(255, 241, 249, 0.92);
+      border-radius: 20px;
+      padding: 16px;
+      text-align: left;
+      box-shadow: 0 12px 30px rgba(35, 0, 17, 0.3);
+      font-weight: 600;
+      line-height: 1.55;
+      color: #6b133c;
+    }
+
+    .voice-block {
+      width: min(680px, 100%);
+      margin: 0 auto 24px;
+      padding: 20px 18px;
+      border-radius: 22px;
+      background: rgba(255, 237, 247, 0.18);
+      border: 1px solid rgba(255, 228, 243, 0.35);
+      box-shadow: 0 12px 30px rgba(35, 0, 17, 0.28);
+      backdrop-filter: blur(8px);
+      text-align: center;
+    }
+
+    .voice-title {
+      margin: 0 0 12px;
+      font-size: clamp(1.1rem, 3.7vw, 1.5rem);
+      font-weight: 700;
+      color: #fff7fc;
+      text-shadow: 0 2px 8px rgba(24, 0, 11, 0.4);
+    }
+
+    .voice-btn {
+      min-height: 56px;
+      min-width: min(360px, 100%);
+      font-size: clamp(1rem, 3.2vw, 1.14rem);
+    }
+
+    .voice-btn.is-playing {
+      background: linear-gradient(135deg, #ffd2ea, #ffc0e2);
+      color: #8d1451;
+      box-shadow: 0 10px 24px rgba(35, 0, 17, 0.24);
+    }
+
+    .gallery {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: 1fr;
+    }
+
+    .photo-card {
+      position: relative;
+      border-radius: 20px;
+      overflow: hidden;
+      min-height: 210px;
+      background: #ffd8ea;
+      box-shadow: 0 12px 28px rgba(35, 0, 17, 0.34);
+      animation: fadeIn 0.7s ease both;
+    }
+
+    .gallery-photo {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      min-height: 210px;
+      transition: opacity 0.3s ease;
+    }
+
+    .photo-card.photo-missing {
+      background: linear-gradient(145deg, #ffb0d7, #ff79b4);
+    }
+
+    .photo-card.photo-missing::after {
+      content: "📸 Фото скоро появится 💕";
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 16px;
+      font-size: clamp(1rem, 2.8vw, 1.2rem);
+      font-weight: 700;
+      color: #fff3fa;
+      text-shadow: 0 2px 8px rgba(66, 0, 30, 0.5);
+      background: linear-gradient(150deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+    }
+
+    .photo-card .gallery-photo.photo-missing {
+      opacity: 0;
+    }
+
+    .heart-burst {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 50;
+    }
+
+    .burst-heart {
+      position: absolute;
+      font-size: clamp(16px, 4vw, 28px);
+      animation: burst 1.2s ease forwards;
+      will-change: transform, opacity;
+    }
+
+    @keyframes burst {
+      0% {
+        transform: translate(-50%, -50%) scale(0.4);
+        opacity: 0;
+      }
+      20% {
+        opacity: 1;
+      }
+      100% {
+        transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.2) rotate(var(--rot));
+        opacity: 0;
+      }
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% {
+        box-shadow: 0 12px 30px rgba(27, 0, 13, 0.38);
+      }
+      50% {
+        box-shadow: 0 14px 32px rgba(27, 0, 13, 0.44), 0 0 0 8px rgba(255, 210, 234, 0.18);
+      }
+    }
+
+    @keyframes showUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (min-width: 760px) {
+      .gallery {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 560px) {
+      .btn-no {
+        right: 10px;
+      }
+
+      .flow-wrap {
+        padding: 12px;
+        border-radius: 20px;
+      }
+
+      .step-view {
+        padding: 14px;
+      }
+
+      .option-btn {
+        font-size: 0.98rem;
+      }
+
+      .voice-block {
+        padding: 16px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="hearts-bg" id="heartsBg" aria-hidden="true"></div>
+  <div class="heart-burst" id="heartBurst" aria-hidden="true"></div>
+
+  <main class="page">
+    <section class="hero" id="heroSection">
+      <h1 class="hello">
+        Привет, <span id="personName">Регина</span>! Я сделал этот сайт, чтобы пригласить тебя на свидание.<br>
+        От Даниила Воробьёва 💕
+      </h1>
+      <!-- ЗДЕСЬ МЕНЯЙ ИМЯ -->
+
+      <h2 class="question">Пойдёшь со мной на свидание?</h2>
+
+      <div class="buttons-zone" id="buttonsZone">
+        <button class="btn btn-yes" id="yesBtn" type="button">Да 💖</button>
+        <button class="btn btn-no" id="noBtn" type="button">Нет</button>
+      </div>
+    </section>
+
+    <section class="flow-wrap" id="flowWrap" aria-live="polite">
+      <div class="progress" id="progressText">Шаг 1 из 4 💕</div>
+      <div class="step-view" id="stepView"></div>
+    </section>
+
+    <section class="final" id="finalSection">
+      <h3 class="final-title">
+        Ура-ура-ура! 🎉💕<br>
+        Ты согласилась!<br>
+        Я так счастлив, что ты сказала «да» 🥰<br>
+        Обязательно напомню накануне!
+      </h3>
+
+      <div class="summary" id="summaryBox"></div>
+
+      <!-- ЗДЕСЬ ГОЛОСОВОЕ: положи файл voice.mp3 рядом с index.html
+           и замени src="" на src="voice.mp3" -->
+      <div class="voice-block">
+        <p class="voice-title">У меня для тебя сюрприз… 🎁</p>
+        <button class="voice-btn" id="voiceBtn" onclick="playVoiceSurprise()">
+          🎤 Нажми, чтобы услышать
+        </button>
+        <audio id="voiceMessage" src="voiceDaniil.mp3"></audio>
+      </div>
+
+      <!-- ЗДЕСЬ МЕНЯЙ ФОТОГРАФИИ -->
+      <div class="gallery" id="gallery">
+        <figure class="photo-card" style="animation-delay: 0.05s;">
+          <!-- ФОТО 1: замени src="photo1.jpg" на путь к своей фотке -->
+          <img src="photo1.jpg" alt="Наше фото" class="gallery-photo" onerror="this.classList.add('photo-missing'); this.parentElement.classList.add('photo-missing')">
+        </figure>
+        <figure class="photo-card" style="animation-delay: 0.15s;">
+          <!-- ФОТО 2: замени src="photo2.jpg" на путь к своей фотке -->
+          <img src="photo2.jpg" alt="Наше фото" class="gallery-photo" onerror="this.classList.add('photo-missing'); this.parentElement.classList.add('photo-missing')">
+        </figure>
+        <figure class="photo-card" style="animation-delay: 0.25s;">
+          <!-- ФОТО 3: замени src="photo3.jpg" на путь к своей фотке -->
+          <img src="photo3.jpg" alt="Наше фото" class="gallery-photo" onerror="this.classList.add('photo-missing'); this.parentElement.classList.add('photo-missing')">
+        </figure>
+        <figure class="photo-card" style="animation-delay: 0.35s;">
+          <!-- ФОТО 4: замени src="photo4.jpg" на путь к своей фотке -->
+          <img src="photo4.jpg" alt="Наше фото" class="gallery-photo" onerror="this.classList.add('photo-missing'); this.parentElement.classList.add('photo-missing')">
+        </figure>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const yesBtn = document.getElementById('yesBtn');
+    const noBtn = document.getElementById('noBtn');
+    const buttonsZone = document.getElementById('buttonsZone');
+    const heroSection = document.getElementById('heroSection');
+    const flowWrap = document.getElementById('flowWrap');
+    const stepView = document.getElementById('stepView');
+    const progressText = document.getElementById('progressText');
+    const finalSection = document.getElementById('finalSection');
+    const summaryBox = document.getElementById('summaryBox');
+    const heartsBg = document.getElementById('heartsBg');
+    const heartBurst = document.getElementById('heartBurst');
+
+    const noTexts = [
+      'Точно нет?',
+      'Подумай ещё 🥺',
+      'Ты уверена?',
+      'Последний шанс!',
+      'Ну пожалуйста 🙏'
+    ];
+
+    const walkOptions = ['🏙️ В центре', '🌳 В парке', '🏟️ На ФОКе'];
+    const foodOptions = ['☕ Кафе в центре', '🍗 Ростикс в Юбилейном'];
+
+    // ЗДЕСЬ МЕНЯЙ СПИСОК ФИЛЬМОВ
+    const movieOptions = [
+      '🎥 Комедия',
+      '💥 Боевик',
+      '👻 Ужасы',
+      '💕 Мелодрама',
+      '🚀 Фантастика',
+      '🤔 Пусть выберет Даниил'
+    ];
+
+    const heartColors = ['#ffd0ea', '#ff9acc', '#ff68ae', '#ff3f97', '#f92786'];
+
+    let noIndex = 0;
+    let yesScale = 1;
+
+    const state = {
+      currentScreen: 'activity',
+      stack: [],
+      activity: '',
+      walk: '',
+      movie: '',
+      food: '',
+      date: '',
+      time: ''
+    };
+
+    function createBackgroundHearts() {
+      const heartsCount = Math.min(120, Math.max(80, Math.floor(window.innerWidth / 10)));
+      for (let i = 0; i < heartsCount; i += 1) {
+        const heart = document.createElement('span');
+        const direction = Math.random() > 0.5 ? 1 : -1;
+        const rotations = 90 + Math.random() * 900;
+        const drift = (Math.random() - 0.5) * 80;
+
+        heart.className = 'falling-heart';
+        heart.textContent = '♥';
+        heart.style.left = `${Math.random() * 100}%`;
+        heart.style.color = heartColors[Math.floor(Math.random() * heartColors.length)];
+        heart.style.fontSize = `${10 + Math.random() * 22}px`;
+        heart.style.animationDuration = `${5 + Math.random() * 11}s`;
+        heart.style.animationDelay = `${Math.random() * 8}s`;
+        heart.style.setProperty('--drift', `${drift}px`);
+        heart.style.setProperty('--rot-start', `${(Math.random() - 0.5) * 80}deg`);
+        heart.style.setProperty('--rot-end', `${direction * rotations}deg`);
+        heart.style.setProperty('--heart-opacity', `${0.45 + Math.random() * 0.45}`);
+        heartsBg.appendChild(heart);
+      }
+    }
+
+    function intersects(a, b) {
+      return !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom);
+    }
+
+    function runAwayNoButton() {
+      const margin = 20;
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      const noWidth = noBtn.offsetWidth;
+      const noHeight = noBtn.offsetHeight;
+      const yesRect = yesBtn.getBoundingClientRect();
+
+      let chosen = null;
+
+      for (let attempt = 0; attempt < 10; attempt += 1) {
+        const x = margin + Math.random() * Math.max(10, viewportWidth - noWidth - margin * 2);
+        const y = margin + Math.random() * Math.max(10, viewportHeight - noHeight - margin * 2);
+        const nextRect = {
+          left: x,
+          top: y,
+          right: x + noWidth,
+          bottom: y + noHeight
+        };
+
+        if (!intersects(nextRect, yesRect)) {
+          chosen = { x, y };
+          break;
+        }
+      }
+
+      if (!chosen) {
+        chosen = {
+          x: margin + Math.random() * Math.max(10, viewportWidth - noWidth - margin * 2),
+          y: margin + Math.random() * Math.max(10, viewportHeight - noHeight - margin * 2)
+        };
+      }
+
+      noBtn.style.position = 'fixed';
+      noBtn.style.left = `${chosen.x}px`;
+      noBtn.style.top = `${chosen.y}px`;
+      noBtn.style.right = 'auto';
+      noBtn.style.transition = 'left 0.24s ease, top 0.24s ease';
+
+      noBtn.textContent = noTexts[noIndex % noTexts.length];
+      noIndex += 1;
+
+      yesScale = Math.min(2.5, yesScale + 0.13);
+      yesBtn.style.transform = `scale(${yesScale})`;
+    }
+
+    function createOptionButton(label, onClick) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'option-btn';
+      button.textContent = label;
+      button.addEventListener('click', onClick);
+      return button;
+    }
+
+    function switchStep(contentBuilder) {
+      stepView.classList.add('is-switching');
+      setTimeout(() => {
+        stepView.innerHTML = '';
+        contentBuilder();
+        stepView.classList.remove('is-switching');
+      }, 170);
+    }
+
+    function setProgress(text) {
+      progressText.textContent = text;
+    }
+
+    function navigateTo(screenName) {
+      state.stack.push(state.currentScreen);
+      state.currentScreen = screenName;
+      renderCurrentScreen();
+    }
+
+    function goBack() {
+      if (state.stack.length === 0) {
+        flowWrap.classList.remove('visible');
+        heroSection.style.display = 'block';
+        return;
+      }
+      state.currentScreen = state.stack.pop();
+      renderCurrentScreen();
+    }
+
+    function addBackButton(controls) {
+      const backBtn = document.createElement('button');
+      backBtn.type = 'button';
+      backBtn.className = 'back-btn';
+      backBtn.textContent = 'Назад';
+      backBtn.addEventListener('click', goBack);
+      controls.appendChild(backBtn);
+    }
+
+    function renderQuestion(title, options, onPick, progressLabel) {
+      setProgress(progressLabel);
+      switchStep(() => {
+        const heading = document.createElement('h4');
+        heading.className = 'step-title';
+        heading.textContent = title;
+
+        const optionWrap = document.createElement('div');
+        optionWrap.className = 'options';
+        options.forEach((option) => {
+          optionWrap.appendChild(createOptionButton(option, () => onPick(option)));
+        });
+
+        const controls = document.createElement('div');
+        controls.className = 'step-controls';
+        addBackButton(controls);
+
+        stepView.append(heading, optionWrap, controls);
+      });
+    }
+
+    function renderDateTimeStep() {
+      setProgress('Шаг 3 из 4 💕');
+      switchStep(() => {
+        const heading = document.createElement('h4');
+        heading.className = 'step-title';
+        heading.textContent = 'Отлично! А когда тебе удобно? 📅';
+
+        const wrap = document.createElement('div');
+        wrap.className = 'date-time-wrap';
+
+        const dateBlock = document.createElement('div');
+        const dateLabel = document.createElement('label');
+        dateLabel.textContent = 'Выбери дату';
+        dateLabel.setAttribute('for', 'dateInput');
+        const dateInput = document.createElement('input');
+        dateInput.id = 'dateInput';
+        dateInput.type = 'date';
+        dateInput.value = state.date;
+        dateInput.required = true;
+        dateBlock.append(dateLabel, dateInput);
+
+        const timeBlock = document.createElement('div');
+        const timeLabel = document.createElement('label');
+        timeLabel.textContent = 'Выбери время';
+        timeLabel.setAttribute('for', 'timeInput');
+        const timeInput = document.createElement('input');
+        timeInput.id = 'timeInput';
+        timeInput.type = 'time';
+        timeInput.value = state.time;
+        timeInput.required = true;
+        timeBlock.append(timeLabel, timeInput);
+
+        wrap.append(dateBlock, timeBlock);
+
+        const controls = document.createElement('div');
+        controls.className = 'step-controls';
+
+        addBackButton(controls);
+
+        const confirmBtn = document.createElement('button');
+        confirmBtn.type = 'button';
+        confirmBtn.className = 'confirm-btn';
+        confirmBtn.textContent = 'Подтвердить 💖';
+        confirmBtn.addEventListener('click', () => {
+          if (!dateInput.value || !timeInput.value) {
+            alert('Пожалуйста, выбери дату и время 💕');
+            return;
+          }
+          state.date = dateInput.value;
+          state.time = timeInput.value;
+          showFinal();
+        });
+
+        controls.appendChild(confirmBtn);
+        stepView.append(heading, wrap, controls);
+      });
+    }
+
+    function renderActivityStep() {
+      renderQuestion(
+        'Ура! А что будем делать? 💕',
+        ['🚶 Пойти гулять', '🎬 Кино', '🍽️ Сходить покушать', '✨ Всё вместе!'],
+        (pick) => {
+          state.activity = pick;
+          if (pick.includes('гулять')) {
+            navigateTo('walk');
+          } else if (pick.includes('Кино')) {
+            navigateTo('movie');
+          } else if (pick.includes('покушать')) {
+            navigateTo('food');
+          } else {
+            navigateTo('allWalk');
+          }
+        },
+        'Шаг 1 из 4 💕'
+      );
+    }
+
+    function renderCurrentScreen() {
+      switch (state.currentScreen) {
+        case 'activity':
+          renderActivityStep();
+          break;
+        case 'walk':
+          renderQuestion('А где погуляем?', walkOptions, (pick) => {
+            state.walk = pick;
+            navigateTo('datetime');
+          }, 'Шаг 2 из 4 💕');
+          break;
+        case 'movie':
+          renderQuestion('А какой фильм посмотрим?', movieOptions, (pick) => {
+            state.movie = pick;
+            navigateTo('datetime');
+          }, 'Шаг 2 из 4 💕');
+          break;
+        case 'food':
+          renderQuestion('А где покушаем?', foodOptions, (pick) => {
+            state.food = pick;
+            navigateTo('datetime');
+          }, 'Шаг 2 из 4 💕');
+          break;
+        case 'allWalk':
+          renderQuestion('Раз всё вместе — сначала выберем, где погуляем?', walkOptions, (pick) => {
+            state.walk = pick;
+            navigateTo('allMovie');
+          }, 'Шаг 2 из 6 💕');
+          break;
+        case 'allMovie':
+          renderQuestion('Отлично! А какой фильм посмотрим?', movieOptions, (pick) => {
+            state.movie = pick;
+            navigateTo('allFood');
+          }, 'Шаг 3 из 6 💕');
+          break;
+        case 'allFood':
+          renderQuestion('И напоследок — где покушаем?', foodOptions, (pick) => {
+            state.food = pick;
+            navigateTo('datetime');
+          }, 'Шаг 4 из 6 💕');
+          break;
+        case 'datetime':
+          renderDateTimeStep();
+          break;
+        default:
+          renderActivityStep();
+      }
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return 'не выбрана';
+      const date = new Date(`${dateStr}T00:00:00`);
+      return new Intl.DateTimeFormat('ru-RU', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+      }).format(date);
+    }
+
+    function showFinal() {
+      flowWrap.classList.remove('visible');
+      finalSection.classList.add('visible');
+      burstHearts(56);
+
+      const summaryLines = [];
+      summaryLines.push(`<div><strong>Активность:</strong> ${state.activity || 'не выбрана'}</div>`);
+      if (state.walk) summaryLines.push(`<div><strong>Прогулка:</strong> ${state.walk}</div>`);
+      if (state.movie) summaryLines.push(`<div><strong>Фильм:</strong> ${state.movie}</div>`);
+      if (state.food) summaryLines.push(`<div><strong>Еда:</strong> ${state.food}</div>`);
+      summaryLines.push(`<div><strong>Дата:</strong> ${formatDate(state.date)}</div>`);
+      summaryLines.push(`<div><strong>Время:</strong> ${state.time || 'не выбрано'}</div>`);
+      summaryBox.innerHTML = summaryLines.join('');
+    }
+
+    function burstHearts(count = 36) {
+      for (let i = 0; i < count; i += 1) {
+        const heart = document.createElement('span');
+        heart.className = 'burst-heart';
+        heart.textContent = Math.random() > 0.5 ? '💖' : '❤️';
+        heart.style.left = `${40 + Math.random() * 20}%`;
+        heart.style.top = `${45 + Math.random() * 12}%`;
+        heart.style.setProperty('--dx', `${(Math.random() - 0.5) * 1100}px`);
+        heart.style.setProperty('--dy', `${(Math.random() - 0.7) * 800}px`);
+        heart.style.setProperty('--rot', `${(Math.random() - 0.5) * 140}deg`);
+        heartBurst.appendChild(heart);
+        setTimeout(() => heart.remove(), 1300);
+      }
+    }
+
+    function playVoiceSurprise() {
+      const audio = document.getElementById('voiceMessage');
+      const voiceBtn = document.getElementById('voiceBtn');
+      if (voiceBtn) {
+        voiceBtn.textContent = '🥰 Слушаю…';
+        voiceBtn.classList.add('is-playing');
+      }
+      if (audio && audio.src && audio.src !== window.location.href) {
+        audio.play().catch((e) => console.log('Аудио не загружено:', e));
+      }
+      burstHearts(52);
+    }
+
+    function openFlow() {
+      burstHearts(30);
+      heroSection.style.display = 'none';
+      finalSection.classList.remove('visible');
+      flowWrap.classList.add('visible');
+      state.currentScreen = 'activity';
+      state.stack = [];
+      renderCurrentScreen();
+    }
+
+    yesBtn.addEventListener('click', openFlow);
+    noBtn.addEventListener('mouseenter', runAwayNoButton);
+    noBtn.addEventListener('click', (event) => {
+      event.preventDefault();
+      runAwayNoButton();
+    });
+    noBtn.addEventListener('touchstart', (event) => {
+      event.preventDefault();
+      runAwayNoButton();
+    }, { passive: false });
+
+    createBackgroundHearts();
+  </script>
+</body>
+</html>
